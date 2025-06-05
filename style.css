@@ -1,42 +1,247 @@
 body {
     font-family: Arial, sans-serif;
+    margin: 0;
     padding: 20px;
-    background-color: #f5f5f5;
+    background-color: #f4f7f6;
+    color: #333;
+    line-height: 1.6;
 }
+
 .container {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
+    max-width: 1000px;
+    margin: 20px auto;
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
-.form-section, .invoice-preview {
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+
+h1 {
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 30px;
 }
-input {
+
+h3 {
+    color: #34495e;
+    border-bottom: 2px solid #ecf0f1;
+    padding-bottom: 8px;
+    margin-top: 25px;
+    margin-bottom: 15px;
+}
+
+.section {
+    margin-bottom: 25px;
+    padding: 15px;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    background-color: #fdfdfd;
+}
+
+/* Input Fields Styling */
+label {
     display: block;
-    margin: 10px 0;
-    padding: 10px;
-    width: 100%;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #555;
 }
+
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="number"],
+input[type="date"],
+textarea {
+    width: calc(100% - 20px); /* Account for padding */
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box; /* Include padding in width */
+    font-size: 1rem;
+}
+
+textarea {
+    resize: vertical; /* Allow vertical resizing */
+}
+
+/* Party Details Layout */
+.party-details-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px; /* Space between seller and buyer blocks */
+    margin-bottom: 25px;
+}
+
+.seller-details,
+.buyer-details {
+    flex: 1; /* Make them take equal space */
+    min-width: 300px; /* Minimum width to prevent collapse */
+}
+
+/* Table Styling */
+.invoice-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.invoice-table th,
+.invoice-table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+}
+
+.invoice-table th {
+    background-color: #eaf1f1;
+    font-weight: bold;
+    color: #333;
+}
+
+.invoice-table tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.invoice-table input[type="text"],
+.invoice-table input[type="number"] {
+    width: 90%; /* Adjust width for inputs inside table cells */
+    padding: 5px;
+    margin: 0;
+    border: 1px solid #eee;
+}
+
+/* Buttons */
 button {
     padding: 10px 20px;
-    background: #007bff;
+    background-color: #28a745; /* Green for primary actions */
     color: white;
     border: none;
+    border-radius: 5px;
     cursor: pointer;
-    margin-top: 10px;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+    margin-right: 10px;
 }
-.item {
-    display: flex;
-    gap: 10px;
+
+button:hover {
+    background-color: #218838;
 }
-.item input {
-    width: auto;
+
+#addItemBtn {
+    background-color: #007bff; /* Blue for Add Item */
+    margin-top: 15px;
 }
-#invoiceContent {
+
+#addItemBtn:hover {
+    background-color: #0056b3;
+}
+
+.remove-item-btn {
+    background-color: #dc3545; /* Red for Remove */
+    padding: 8px 12px;
+    font-size: 0.9rem;
+}
+
+.remove-item-btn:hover {
+    background-color: #c82333;
+}
+
+.action-buttons {
+    text-align: center;
+    margin-top: 30px;
+}
+
+/* Totals Section */
+.totals-section {
+    text-align: right;
     margin-top: 20px;
-    border: 1px solid #ddd;
-    padding: 15px;
+    font-size: 1.1rem;
+    padding-top: 15px;
+    border-top: 1px solid #e0e0e0;
+}
+
+.totals-section div {
+    margin-bottom: 8px;
+}
+
+.totals-section .grand-total {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #2c3e50;
+    border-top: 2px solid #555;
+    padding-top: 10px;
+    margin-top: 15px;
+}
+
+/* Invoice Preview Section */
+.invoice-preview {
+    margin-top: 40px;
+    padding: 25px;
+    border: 2px dashed #007bff;
+    background-color: #eaf6ff;
+    min-height: 200px;
+    display: none; /* Hidden by default, shown when generated */
+}
+
+.invoice-preview h2 {
+    text-align: center;
+    color: #007bff;
+    margin-bottom: 20px;
+}
+
+.invoice-preview p, .invoice-preview address {
+    margin: 5px 0;
+}
+
+.invoice-preview .invoice-parties {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.invoice-preview .invoice-parties > div {
+    width: 48%;
+}
+
+.invoice-preview .invoice-table {
+    margin-bottom: 20px;
+}
+
+/* Print Specific Styles */
+@media print {
+    body {
+        background-color: white;
+        margin: 0;
+        padding: 0;
+    }
+    .container {
+        box-shadow: none;
+        border-radius: 0;
+        margin: 0;
+        max-width: 100%;
+        padding: 0;
+    }
+    .section, .action-buttons {
+        display: none; /* Hide input sections and action buttons */
+    }
+    .invoice-preview {
+        display: block !important; /* Force display of the preview */
+        border: none;
+        background-color: white;
+        min-height: auto;
+        padding: 20px;
+    }
+    h1 {
+        display: none; /* Hide the main heading on print */
+    }
+    .invoice-preview h2 {
+        display: block; /* Show specific invoice title for print */
+        font-size: 1.5rem;
+        color: #333;
+    }
+    /* Hide CGST/SGST/IGST columns if their respective totals are zero */
+    .hide-if-zero {
+        display: none !important;
+    }
 }
