@@ -1,73 +1,283 @@
-function addNewItem() {
-    const itemsDiv = document.getElementById('items');
-    const newItem = document.createElement('div');
-    newItem.className = 'item';
-    newItem.innerHTML = `
-        <input type="text" placeholder="Item Name" class="item-name">
-        <input type="number" placeholder="Quantity" class="item-qty">
-        <input type="number" placeholder="Price (₹)" class="item-price">
+// Get references to HTML elements
+const invoiceNumberInput = document.getElementById('invoiceNumber');
+const dispatchNumberInput = document.getElementById('dispatchNumber');
+const invoiceDateInput = document.getElementById('invoiceDate');
+
+const sellerNameInput = document.getElementById('sellerName');
+const sellerAddressInput = document.getElementById('sellerAddress');
+const sellerEmailInput = document.getElementById('sellerEmail');
+const sellerPhoneInput = document.getElementById('sellerPhone');
+const sellerGSTINInput = document.getElementById('sellerGSTIN');
+const sellerStateInput = document.getElementById('sellerState');
+
+const buyerNameInput = document.getElementById('buyerName');
+const buyerAddressInput = document.getElementById('buyerAddress');
+const buyerEmailInput = document.getElementById('buyerEmail');
+const buyerPhoneInput = document.getElementById('buyerPhone');
+const buyerGSTINInput = document.getElementById('buyerGSTIN');
+const buyerStateInput = document.getElementById('buyerState');
+
+const invoiceItemsBody = document.getElementById('invoiceItems');
+const addItemBtn = document.getElementById('addItemBtn');
+
+const subtotalSpan = document.getElementById('subtotal');
+const totalCGSTSpan = document.getElementById('totalCGST');
+const totalSGSTSpan = document.getElementById('totalSGST');
+const totalIGSTSpan = document.getElementById('totalIGST');
+const grandTotalSpan = document.getElementById('grandTotal');
+
+const generateInvoiceBtn = document.getElementById('generateInvoiceBtn');
+const printInvoiceBtn = document.getElementById('printInvoiceBtn');
+const invoicePreviewDiv = document.getElementById('invoicePreview');
+
+// --- Functions ---
+
+// Set initial invoice date to today
+document.addEventListener('DOMContentLoaded', () => {
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0'); // Months start at 0!
+    const dd = String(today.getDate()).padStart(2, '0');
+    invoiceDateInput.value = `${yyyy}-${mm}-${dd}`;
+    addItem(); // Add one initial item row
+    updateTotals(); // Calculate initial totals
+});
+
+// Function to add a new item row
+function addItem() {
+    const newRow = document.createElement('tr');
+    newRow.classList.add('invoice-item'); // Add a class for easy selection later
+
+    newRow.innerHTML = `
+        <td><input type="text" class="item-description" placeholder="Product/Service Name"></td>
+        <td><input type="text" class="item-hsn" placeholder="HSN/SAC"></td>
+        <td><input type="number" class="item-quantity" value="1" min="0.01" step="0.01"></td>
+        <td><input type="number" class="item-price" value="0.00" min="0" step="0.01"></td>
+        <td><input type="number" class="item-gst-rate" value="18" min="0" step="0.01"></td>
+        <td class="item-taxable-value">0.00</td>
+        <td class="item-cgst">0.00</td>
+        <td class="item-sgst">0.00</td>
+        <td class="item-igst">0.00</td>
+        <td class="item-total">0.00</td>
+        <td><button class="remove-item-btn">Remove</button></td>
     `;
-    itemsDiv.appendChild(newItem);
+    invoiceItemsBody.appendChild(newRow);
+    attachRowEventListeners(newRow); // Attach listeners to new row
+    updateTotals(); // Recalculate totals after adding
 }
 
+// Function to calculate GST for a single item
+function calculateGST(taxableValue, gstRate, sellerState, buyerState) {
+    const gstAmount = (taxableValue * gstRate) / 100;
+    let cgst = 0;
+    let sgst = 0;
+    let igst = 0;
+
+    // Normalize states for comparison
+    const sState = sellerState.toUpperCase().trim();
+    const bState = buyerState.toUpperCase().trim();
+
+    if (sState === bState && sState !== '') { // Intra-state supply
+        cgst = gstAmount / 2;
+        sgst = gstAmount / 2;
+        igst = 0;
+    } else { // Inter-state supply or state not defined (default to IGST)
+        igst = gstAmount;
+        cgst = 0;
+        sgst = 0;
+    }
+
+    return { cgst, sgst, igst, totalGST: gstAmount };
+}
+
+// Function to update all totals
+function updateTotals() {
+    let subtotal = 0;
+    let totalCGST = 0;
+    let totalSGST = 0;
+    let totalIGST = 0;
+
+    const sellerState = sellerStateInput.value || '';
+    const buyerState = buyerStateInput.value || '';
+
+    const itemRows = document.querySelectorAll('.invoice-item');
+
+    itemRows.forEach(row => {
+        const quantity = parseFloat(row.querySelector('.item-quantity').value) || 0;
+        const price = parseFloat(row.querySelector('.item-price').value) || 0;
+        const gstRate = parseFloat(row.querySelector('.item-gst-rate').value) || 0;
+
+        const taxableValue = quantity * price;
+        row.querySelector('.item-taxable-value').textContent = taxableValue.toFixed(2);
+
+        const gstResult = calculateGST(taxableValue, gstRate, sellerState, buyerState);
+
+        row.querySelector('.item-cgst').textContent = gstResult.cgst.toFixed(2);
+        row.querySelector('.item-sgst').textContent = gstResult.sgst.toFixed(2);
+        row.querySelector('.item-igst').textContent = gstResult.igst.toFixed(2);
+
+        const itemTotal = taxableValue + gstResult.totalGST;
+        row.querySelector('.item-total').textContent = itemTotal.toFixed(2);
+
+        subtotal += taxableValue;
+        totalCGST += gstResult.cgst;
+        totalSGST += gstResult.sgst;
+        totalIGST += gstResult.igst;
+    });
+
+    const grandTotal = subtotal + totalCGST + totalSGST + totalIGST;
+
+    subtotalSpan.textContent = subtotal.toFixed(2);
+    totalCGSTSpan.textContent = totalCGST.toFixed(2);
+    totalSGSTSpan.textContent = totalSGST.toFixed(2);
+    totalIGSTSpan.textContent = totalIGST.toFixed(2);
+    grandTotalSpan.textContent = grandTotal.toFixed(2);
+}
+
+// Function to attach event listeners to a new row's inputs and remove button
+function attachRowEventListeners(row) {
+    row.querySelector('.item-quantity').addEventListener('input', updateTotals);
+    row.querySelector('.item-price').addEventListener('input', updateTotals);
+    row.querySelector('.item-gst-rate').addEventListener('input', updateTotals);
+    row.querySelector('.remove-item-btn').addEventListener('click', (event) => {
+        event.target.closest('.invoice-item').remove();
+        updateTotals(); // Recalculate totals after removing
+    });
+}
+
+// Function to generate and display the invoice HTML
 function generateInvoice() {
-    const customerName = document.getElementById('customerName').value;
-    const customerAddress = document.getElementById('customerAddress').value;
-    const items = document.querySelectorAll('.item');
-    
-    let invoiceHTML = `
-        <h3>Invoice For: ${customerName}</h3>
-        <p>${customerAddress}</p>
-        <table border="1" cellpadding="10" cellspacing="0" width="100%">
+    const itemRows = document.querySelectorAll('.invoice-item');
+    let itemsHtml = '';
+    let hasCGST = parseFloat(totalCGSTSpan.textContent) > 0 || parseFloat(totalSGSTSpan.textContent) > 0;
+    let hasIGST = parseFloat(totalIGSTSpan.textContent) > 0;
+
+    // Determine which GST columns to show in the generated invoice
+    let cgstHeader = hasCGST ? '<th>CGST (₹)</th>' : '<th class="hide-if-zero">CGST (₹)</th>';
+    let sgstHeader = hasCGST ? '<th>SGST (₹)</th>' : '<th class="hide-if-zero">SGST (₹)</th>';
+    let igstHeader = hasIGST ? '<th>IGST (₹)</th>' : '<th class="hide-if-zero">IGST (₹)</th>';
+
+    itemRows.forEach(row => {
+        const description = row.querySelector('.item-description').value;
+        const hsn = row.querySelector('.item-hsn').value;
+        const quantity = row.querySelector('.item-quantity').value;
+        const price = parseFloat(row.querySelector('.item-price').value).toFixed(2);
+        const gstRate = row.querySelector('.item-gst-rate').value;
+        const taxableValue = row.querySelector('.item-taxable-value').textContent;
+        const cgst = row.querySelector('.item-cgst').textContent;
+        const sgst = row.querySelector('.item-sgst').textContent;
+        const igst = row.querySelector('.item-igst').textContent;
+        const total = row.querySelector('.item-total').textContent;
+
+        let cgstCell = hasCGST ? `<td>${cgst}</td>` : `<td class="hide-if-zero">${cgst}</td>`;
+        let sgstCell = hasCGST ? `<td>${sgst}</td>` : `<td class="hide-if-zero">${sgst}</td>`;
+        let igstCell = hasIGST ? `<td>${igst}</td>` : `<td class="hide-if-zero">${igst}</td>`;
+
+        itemsHtml += `
             <tr>
-                <th>Item</th>
-                <th>Quantity</th>
-                <th>Price</th>
-                <th>Total</th>
-            </tr>
-    `;
-    
-    let grandTotal = 0;
-    
-    items.forEach(item => {
-        const name = item.querySelector('.item-name').value || "N/A";
-        const qty = parseFloat(item.querySelector('.item-qty').value) || 0;
-        const price = parseFloat(item.querySelector('.item-price').value) || 0;
-        const total = qty * price;
-        grandTotal += total;
-        
-        invoiceHTML += `
-            <tr>
-                <td>${name}</td>
-                <td>${qty}</td>
-                <td>₹${price.toFixed(2)}</td>
-                <td>₹${total.toFixed(2)}</td>
+                <td>${description}</td>
+                <td>${hsn}</td>
+                <td>${quantity}</td>
+                <td>${price}</td>
+                <td>${gstRate}%</td>
+                <td>${taxableValue}</td>
+                ${cgstCell}
+                ${sgstCell}
+                ${igstCell}
+                <td>${total}</td>
             </tr>
         `;
     });
-    
-    invoiceHTML += `
-            <tr>
-                <td colspan="3" align="right"><strong>Grand Total:</strong></td>
-                <td><strong>₹${grandTotal.toFixed(2)}</strong></td>
-            </tr>
+
+    invoicePreviewDiv.innerHTML = `
+        <h2 style="text-align: center; color: #333; margin-bottom: 20px;">TAX INVOICE</h2>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+            <div>
+                <p><strong>Invoice No.:</strong> ${invoiceNumberInput.value}</p>
+                <p><strong>Dispatch No.:</strong> ${dispatchNumberInput.value}</p>
+                <p><strong>Date:</strong> ${invoiceDateInput.value}</p>
+            </div>
+            <div>
+                </div>
+        </div>
+
+        <div class="invoice-parties" style="display: flex; justify-content: space-between; margin-bottom: 20px; border: 1px solid #eee; padding: 10px;">
+            <div class="seller-block" style="width: 48%;">
+                <p style="font-weight: bold; margin-bottom: 5px;">Seller Details:</p>
+                <address style="font-style: normal;">
+                    <strong>${sellerNameInput.value}</strong><br>
+                    ${sellerAddressInput.value.replace(/\n/g, '<br>')}<br>
+                    Email: ${sellerEmailInput.value}<br>
+                    Phone: ${sellerPhoneInput.value}<br>
+                    GSTIN: ${sellerGSTINInput.value}<br>
+                    State: ${sellerStateInput.value}
+                </address>
+            </div>
+            <div class="buyer-block" style="width: 48%;">
+                <p style="font-weight: bold; margin-bottom: 5px;">Buyer Details (Bill To):</p>
+                <address style="font-style: normal;">
+                    <strong>${buyerNameInput.value}</strong><br>
+                    ${buyerAddressInput.value.replace(/\n/g, '<br>')}<br>
+                    Email: ${buyerEmailInput.value}<br>
+                    Phone: ${buyerPhoneInput.value}<br>
+                    GSTIN: ${buyerGSTINInput.value}<br>
+                    State: ${buyerStateInput.value}
+                </address>
+            </div>
+        </div>
+
+        <table class="invoice-table" style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+            <thead>
+                <tr>
+                    <th>Description</th>
+                    <th>HSN/SAC</th>
+                    <th>Qty</th>
+                    <th>Rate (₹)</th>
+                    <th>GST (%)</th>
+                    <th>Taxable Value (₹)</th>
+                    ${cgstHeader}
+                    ${sgstHeader}
+                    ${igstHeader}
+                    <th>Total (₹)</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${itemsHtml}
+            </tbody>
         </table>
+
+        <div class="invoice-totals" style="text-align: right; margin-top: 20px; font-size: 1.1rem;">
+            <p>Subtotal: ₹ ${subtotalSpan.textContent}</p>
+            ${hasCGST ? `<p>Total CGST: ₹ ${totalCGSTSpan.textContent}</p>` : ''}
+            ${hasCGST ? `<p>Total SGST: ₹ ${totalSGSTSpan.textContent}</p>` : ''}
+            ${hasIGST ? `<p>Total IGST: ₹ ${totalIGSTSpan.textContent}</p>` : ''}
+            <p style="font-size: 1.3rem; font-weight: bold; border-top: 1px solid #ccc; padding-top: 10px; margin-top: 15px;">Grand Total: ₹ ${grandTotalSpan.textContent}</p>
+        </div>
     `;
-    
-    document.getElementById('invoiceContent').innerHTML = invoiceHTML;
+    invoicePreviewDiv.style.display = 'block'; // Show the preview
 }
 
-function downloadPDF() {
-    const invoiceContent = document.getElementById('invoiceContent');
-    
-    html2canvas(invoiceContent).then(canvas => {
-        const imgData = canvas.toDataURL('image/png');
-        const pdf = new jspdf.jsPDF();
-        const imgProps = pdf.getImageProperties(imgData);
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-        
-        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-        pdf.save('invoice.pdf');
-    });
-}
+// --- Event Listeners ---
+
+addItemBtn.addEventListener('click', addItem);
+generateInvoiceBtn.addEventListener('click', generateInvoice);
+printInvoiceBtn.addEventListener('click', () => {
+    generateInvoice(); // Ensure the preview is updated before printing
+    window.print();
+});
+
+// Event delegation for item rows to update totals on input changes
+invoiceItemsBody.addEventListener('input', (event) => {
+    if (event.target.classList.contains('item-quantity') ||
+        event.target.classList.contains('item-price') ||
+        event.target.classList.contains('item-gst-rate')) {
+        updateTotals();
+    }
+});
+
+// Listen for changes in seller/buyer state to re-calculate GST
+sellerStateInput.addEventListener('input', updateTotals);
+buyerStateInput.addEventListener('input', updateTotals);
+
+// Add listeners for other top-level inputs if they affect calculations (e.g., discounts later)
+// For now, these mostly update the display on generateInvoice
