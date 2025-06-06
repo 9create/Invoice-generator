@@ -17,6 +17,10 @@ const buyerPhoneInput = document.getElementById('buyerPhone');
 const buyerGSTINInput = document.getElementById('buyerGSTIN');
 const buyerStateInput = document.getElementById('buyerState');
 
+// New: Dispatch & Delivery Details
+const dispatchedFromAddressInput = document.getElementById('dispatchedFromAddress');
+const shipToAddressInput = document.getElementById('shipToAddress');
+
 const invoiceItemsBody = document.getElementById('invoiceItems');
 const addItemBtn = document.getElementById('addItemBtn');
 
@@ -26,13 +30,22 @@ const totalSGSTSpan = document.getElementById('totalSGST');
 const totalIGSTSpan = document.getElementById('totalIGST');
 const grandTotalSpan = document.getElementById('grandTotal');
 
+// New: Bank Details
+const bankNameInput = document.getElementById('bankName');
+const accountNumberInput = document.getElementById('accountNumber');
+const ifscCodeInput = document.getElementById('ifscCode');
+const swiftCodeInput = document.getElementById('swiftCode');
+
+// New: Declaration
+const declarationTextInput = document.getElementById('declarationText');
+
 const generateInvoiceBtn = document.getElementById('generateInvoiceBtn');
 const printInvoiceBtn = document.getElementById('printInvoiceBtn');
 const invoicePreviewDiv = document.getElementById('invoicePreview');
 
 // --- Functions ---
 
-// Set initial invoice date to today
+// Set initial invoice date to today and default declaration text
 document.addEventListener('DOMContentLoaded', () => {
     const today = new Date();
     const yyyy = today.getFullYear();
@@ -41,6 +54,9 @@ document.addEventListener('DOMContentLoaded', () => {
     invoiceDateInput.value = `${yyyy}-${mm}-${dd}`;
     addItem(); // Add one initial item row
     updateTotals(); // Calculate initial totals
+
+    // Set default declaration text
+    declarationTextInput.value = `We declare that this invoice shows the actual price of the goods described and that all particulars are true and correct.`;
 });
 
 // Function to add a new item row
@@ -77,6 +93,9 @@ function calculateGST(taxableValue, gstRate, sellerState, buyerState) {
     const sState = sellerState.toUpperCase().trim();
     const bState = buyerState.toUpperCase().trim();
 
+    // Current location is Nagpur, Maharashtra, India.
+    // Assuming sellerState is the origin for GST calculation.
+    // If sellerState and buyerState are the same, it's intra-state.
     if (sState === bState && sState !== '') { // Intra-state supply
         cgst = gstAmount / 2;
         sgst = gstAmount / 2;
@@ -142,6 +161,9 @@ function attachRowEventListeners(row) {
     row.querySelector('.remove-item-btn').addEventListener('click', (event) => {
         event.target.closest('.invoice-item').remove();
         updateTotals(); // Recalculate totals after removing
+        if (document.querySelectorAll('.invoice-item').length === 0) {
+            addItem(); // Ensure there's always at least one item row
+        }
     });
 }
 
@@ -149,13 +171,13 @@ function attachRowEventListeners(row) {
 function generateInvoice() {
     const itemRows = document.querySelectorAll('.invoice-item');
     let itemsHtml = '';
-    let hasCGST = parseFloat(totalCGSTSpan.textContent) > 0 || parseFloat(totalSGSTSpan.textContent) > 0;
-    let hasIGST = parseFloat(totalIGSTSpan.textContent) > 0;
+    let hasCGST = parseFloat(totalCGSTSpan.textContent) > 0.01 || parseFloat(totalSGSTSpan.textContent) > 0.01; // Check for small values
+    let hasIGST = parseFloat(totalIGSTSpan.textContent) > 0.01;
 
     // Determine which GST columns to show in the generated invoice
-    let cgstHeader = hasCGST ? '<th>CGST (₹)</th>' : '<th class="hide-if-zero">CGST (₹)</th>';
-    let sgstHeader = hasCGST ? '<th>SGST (₹)</th>' : '<th class="hide-if-zero">SGST (₹)</th>';
-    let igstHeader = hasIGST ? '<th>IGST (₹)</th>' : '<th class="hide-if-zero">IGST (₹)</th>';
+    let cgstHeader = hasCGST ? '<th>CGST (₹)</th>' : '';
+    let sgstHeader = hasCGST ? '<th>SGST (₹)</th>' : '';
+    let igstHeader = hasIGST ? '<th>IGST (₹)</th>' : '';
 
     itemRows.forEach(row => {
         const description = row.querySelector('.item-description').value;
@@ -169,9 +191,9 @@ function generateInvoice() {
         const igst = row.querySelector('.item-igst').textContent;
         const total = row.querySelector('.item-total').textContent;
 
-        let cgstCell = hasCGST ? `<td>${cgst}</td>` : `<td class="hide-if-zero">${cgst}</td>`;
-        let sgstCell = hasCGST ? `<td>${sgst}</td>` : `<td class="hide-if-zero">${sgst}</td>`;
-        let igstCell = hasIGST ? `<td>${igst}</td>` : `<td class="hide-if-zero">${igst}</td>`;
+        let cgstCell = hasCGST ? `<td>${cgst}</td>` : '';
+        let sgstCell = hasCGST ? `<td>${sgst}</td>` : '';
+        let igstCell = hasIGST ? `<td>${igst}</td>` : '';
 
         itemsHtml += `
             <tr>
@@ -190,8 +212,8 @@ function generateInvoice() {
     });
 
     invoicePreviewDiv.innerHTML = `
-        <h2 style="text-align: center; color: #333; margin-bottom: 20px;">TAX INVOICE</h2>
-        <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+        <h2 style="text-align: center; color: #333; margin-bottom: 20px; text-transform: uppercase;">TAX INVOICE</h2>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 0.95rem;">
             <div>
                 <p><strong>Invoice No.:</strong> ${invoiceNumberInput.value}</p>
                 <p><strong>Dispatch No.:</strong> ${dispatchNumberInput.value}</p>
@@ -203,8 +225,8 @@ function generateInvoice() {
 
         <div class="invoice-parties" style="display: flex; justify-content: space-between; margin-bottom: 20px; border: 1px solid #eee; padding: 10px;">
             <div class="seller-block" style="width: 48%;">
-                <p style="font-weight: bold; margin-bottom: 5px;">Seller Details:</p>
-                <address style="font-style: normal;">
+                <p style="font-weight: bold; margin-bottom: 5px; color: #555;">Seller Details:</p>
+                <address style="font-style: normal; margin-top: 0;">
                     <strong>${sellerNameInput.value}</strong><br>
                     ${sellerAddressInput.value.replace(/\n/g, '<br>')}<br>
                     Email: ${sellerEmailInput.value}<br>
@@ -214,8 +236,8 @@ function generateInvoice() {
                 </address>
             </div>
             <div class="buyer-block" style="width: 48%;">
-                <p style="font-weight: bold; margin-bottom: 5px;">Buyer Details (Bill To):</p>
-                <address style="font-style: normal;">
+                <p style="font-weight: bold; margin-bottom: 5px; color: #555;">Buyer Details (Bill To):</p>
+                <address style="font-style: normal; margin-top: 0;">
                     <strong>${buyerNameInput.value}</strong><br>
                     ${buyerAddressInput.value.replace(/\n/g, '<br>')}<br>
                     Email: ${buyerEmailInput.value}<br>
@@ -226,19 +248,36 @@ function generateInvoice() {
             </div>
         </div>
 
+        <div class="dispatch-delivery-preview" style="margin-bottom: 20px; border: 1px solid #eee; padding: 10px; font-size: 0.95rem;">
+            <div style="display: flex; justify-content: space-between;">
+                <div style="width: 48%;">
+                    <p style="font-weight: bold; margin-bottom: 5px; color: #555;">Dispatched From:</p>
+                    <address style="font-style: normal; margin-top: 0;">
+                        ${dispatchedFromAddressInput.value.replace(/\n/g, '<br>')}
+                    </address>
+                </div>
+                <div style="width: 48%;">
+                    <p style="font-weight: bold; margin-bottom: 5px; color: #555;">Ship To (Destination):</p>
+                    <address style="font-style: normal; margin-top: 0;">
+                        ${shipToAddressInput.value.replace(/\n/g, '<br>')}
+                    </address>
+                </div>
+            </div>
+        </div>
+
         <table class="invoice-table" style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
             <thead>
                 <tr>
-                    <th>Description</th>
-                    <th>HSN/SAC</th>
-                    <th>Qty</th>
-                    <th>Rate (₹)</th>
-                    <th>GST (%)</th>
-                    <th>Taxable Value (₹)</th>
+                    <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Description</th>
+                    <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">HSN/SAC</th>
+                    <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Qty</th>
+                    <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Rate (₹)</th>
+                    <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">GST (%)</th>
+                    <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Taxable Value (₹)</th>
                     ${cgstHeader}
                     ${sgstHeader}
                     ${igstHeader}
-                    <th>Total (₹)</th>
+                    <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Total (₹)</th>
                 </tr>
             </thead>
             <tbody>
@@ -246,12 +285,28 @@ function generateInvoice() {
             </tbody>
         </table>
 
-        <div class="invoice-totals" style="text-align: right; margin-top: 20px; font-size: 1.1rem;">
-            <p>Subtotal: ₹ ${subtotalSpan.textContent}</p>
-            ${hasCGST ? `<p>Total CGST: ₹ ${totalCGSTSpan.textContent}</p>` : ''}
-            ${hasCGST ? `<p>Total SGST: ₹ ${totalSGSTSpan.textContent}</p>` : ''}
-            ${hasIGST ? `<p>Total IGST: ₹ ${totalIGSTSpan.textContent}</p>` : ''}
-            <p style="font-size: 1.3rem; font-weight: bold; border-top: 1px solid #ccc; padding-top: 10px; margin-top: 15px;">Grand Total: ₹ ${grandTotalSpan.textContent}</p>
+        <div class="invoice-totals" style="text-align: right; margin-top: 20px; font-size: 1rem;">
+            <p style="margin: 5px 0;">Subtotal: ₹ ${subtotalSpan.textContent}</p>
+            ${hasCGST ? `<p style="margin: 5px 0;">Total CGST: ₹ ${totalCGSTSpan.textContent}</p>` : ''}
+            ${hasCGST ? `<p style="margin: 5px 0;">Total SGST: ₹ ${totalSGSTSpan.textContent}</p>` : ''}
+            ${hasIGST ? `<p style="margin: 5px 0;">Total IGST: ₹ ${totalIGSTSpan.textContent}</p>` : ''}
+            <p style="font-size: 1.2rem; font-weight: bold; border-top: 1px solid #ccc; padding-top: 10px; margin-top: 15px;">Grand Total: ₹ ${grandTotalSpan.textContent}</p>
+        </div>
+
+        <div class="bank-declaration-section" style="display: flex; justify-content: space-between; margin-top: 30px; font-size: 0.9rem;">
+            <div class="bank-details-preview" style="width: 48%; border: 1px solid #eee; padding: 10px;">
+                <p style="font-weight: bold; margin-bottom: 5px; color: #555;">Bank Details:</p>
+                <p style="margin: 3px 0;">Bank Name: ${bankNameInput.value}</p>
+                <p style="margin: 3px 0;">Account No.: ${accountNumberInput.value}</p>
+                <p style="margin: 3px 0;">IFSC Code: ${ifscCodeInput.value}</p>
+                ${swiftCodeInput.value ? `<p style="margin: 3px 0;">SWIFT Code: ${swiftCodeInput.value}</p>` : ''}
+            </div>
+            <div class="declaration-preview" style="width: 48%; border: 1px solid #eee; padding: 10px;">
+                <p style="font-weight: bold; margin-bottom: 5px; color: #555;">Declaration:</p>
+                <p style="margin: 3px 0;">${declarationTextInput.value}</p>
+                <p style="margin-top: 30px; text-align: right; font-weight: bold;">For ${sellerNameInput.value}</p>
+                <p style="margin-top: 50px; text-align: right;">(Authorized Signatory)</p>
+            </div>
         </div>
     `;
     invoicePreviewDiv.style.display = 'block'; // Show the preview
@@ -279,5 +334,5 @@ invoiceItemsBody.addEventListener('input', (event) => {
 sellerStateInput.addEventListener('input', updateTotals);
 buyerStateInput.addEventListener('input', updateTotals);
 
-// Add listeners for other top-level inputs if they affect calculations (e.g., discounts later)
-// For now, these mostly update the display on generateInvoice
+// Add listeners for other top-level inputs that should trigger invoice re-generation (like dispatch/ship to, bank, declaration)
+// These don't affect totals, so they only need to be processed on generateInvoice
