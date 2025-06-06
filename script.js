@@ -171,13 +171,15 @@ function attachRowEventListeners(row) {
 function generateInvoice() {
     const itemRows = document.querySelectorAll('.invoice-item');
     let itemsHtml = '';
-    let hasCGST = parseFloat(totalCGSTSpan.textContent) > 0.01 || parseFloat(totalSGSTSpan.textContent) > 0.01; // Check for small values
-    let hasIGST = parseFloat(totalIGSTSpan.textContent) > 0.01;
+    // Check if CGST/SGST or IGST totals are greater than a very small number (to avoid float precision issues)
+    let hasCGST = parseFloat(totalCGSTSpan.textContent) > 0.001 || parseFloat(totalSGSTSpan.textContent) > 0.001;
+    let hasIGST = parseFloat(totalIGSTSpan.textContent) > 0.001;
 
-    // Determine which GST columns to show in the generated invoice
-    let cgstHeader = hasCGST ? '<th>CGST (₹)</th>' : '';
-    let sgstHeader = hasCGST ? '<th>SGST (₹)</th>' : '';
-    let igstHeader = hasIGST ? '<th>IGST (₹)</th>' : '';
+    // Determine which GST columns to show in the generated invoice table header
+    let cgstHeader = hasCGST ? '<th style="padding: 8px; border: 1px solid #ddd; text-align: left;">CGST (₹)</th>' : '';
+    let sgstHeader = hasCGST ? '<th style="padding: 8px; border: 1px solid #ddd; text-align: left;">SGST (₹)</th>' : '';
+    let igstHeader = hasIGST ? '<th style="padding: 8px; border: 1px solid #ddd; text-align: left;">IGST (₹)</th>' : '';
+
 
     itemRows.forEach(row => {
         const description = row.querySelector('.item-description').value;
@@ -191,22 +193,23 @@ function generateInvoice() {
         const igst = row.querySelector('.item-igst').textContent;
         const total = row.querySelector('.item-total').textContent;
 
-        let cgstCell = hasCGST ? `<td>${cgst}</td>` : '';
-        let sgstCell = hasCGST ? `<td>${sgst}</td>` : '';
-        let igstCell = hasIGST ? `<td>${igst}</td>` : '';
+        // Conditionally include cells based on GST type
+        let cgstCell = hasCGST ? `<td style="padding: 8px; border: 1px solid #ddd;">${cgst}</td>` : '';
+        let sgstCell = hasCGST ? `<td style="padding: 8px; border: 1px solid #ddd;">${sgst}</td>` : '';
+        let igstCell = hasIGST ? `<td style="padding: 8px; border: 1px solid #ddd;">${igst}</td>` : '';
 
         itemsHtml += `
             <tr>
-                <td>${description}</td>
-                <td>${hsn}</td>
-                <td>${quantity}</td>
-                <td>${price}</td>
-                <td>${gstRate}%</td>
-                <td>${taxableValue}</td>
+                <td style="padding: 8px; border: 1px solid #ddd;">${description}</td>
+                <td style="padding: 8px; border: 1px solid #ddd;">${hsn}</td>
+                <td style="padding: 8px; border: 1px solid #ddd;">${quantity}</td>
+                <td style="padding: 8px; border: 1px solid #ddd;">${price}</td>
+                <td style="padding: 8px; border: 1px solid #ddd;">${gstRate}%</td>
+                <td style="padding: 8px; border: 1px solid #ddd;">${taxableValue}</td>
                 ${cgstCell}
                 ${sgstCell}
                 ${igstCell}
-                <td>${total}</td>
+                <td style="padding: 8px; border: 1px solid #ddd;">${total}</td>
             </tr>
         `;
     });
@@ -215,9 +218,9 @@ function generateInvoice() {
         <h2 style="text-align: center; color: #333; margin-bottom: 20px; text-transform: uppercase;">TAX INVOICE</h2>
         <div style="display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 0.95rem;">
             <div>
-                <p><strong>Invoice No.:</strong> ${invoiceNumberInput.value}</p>
-                <p><strong>Dispatch No.:</strong> ${dispatchNumberInput.value}</p>
-                <p><strong>Date:</strong> ${invoiceDateInput.value}</p>
+                <p style="margin: 5px 0;"><strong>Invoice No.:</strong> ${invoiceNumberInput.value}</p>
+                <p style="margin: 5px 0;"><strong>Dispatch No.:</strong> ${dispatchNumberInput.value}</p>
+                <p style="margin: 5px 0;"><strong>Date:</strong> ${invoiceDateInput.value}</p>
             </div>
             <div>
                 </div>
@@ -226,7 +229,7 @@ function generateInvoice() {
         <div class="invoice-parties" style="display: flex; justify-content: space-between; margin-bottom: 20px; border: 1px solid #eee; padding: 10px;">
             <div class="seller-block" style="width: 48%;">
                 <p style="font-weight: bold; margin-bottom: 5px; color: #555;">Seller Details:</p>
-                <address style="font-style: normal; margin-top: 0;">
+                <address style="font-style: normal; margin-top: 0; margin-bottom: 5px;">
                     <strong>${sellerNameInput.value}</strong><br>
                     ${sellerAddressInput.value.replace(/\n/g, '<br>')}<br>
                     Email: ${sellerEmailInput.value}<br>
@@ -237,7 +240,7 @@ function generateInvoice() {
             </div>
             <div class="buyer-block" style="width: 48%;">
                 <p style="font-weight: bold; margin-bottom: 5px; color: #555;">Buyer Details (Bill To):</p>
-                <address style="font-style: normal; margin-top: 0;">
+                <address style="font-style: normal; margin-top: 0; margin-bottom: 5px;">
                     <strong>${buyerNameInput.value}</strong><br>
                     ${buyerAddressInput.value.replace(/\n/g, '<br>')}<br>
                     Email: ${buyerEmailInput.value}<br>
@@ -252,13 +255,13 @@ function generateInvoice() {
             <div style="display: flex; justify-content: space-between;">
                 <div style="width: 48%;">
                     <p style="font-weight: bold; margin-bottom: 5px; color: #555;">Dispatched From:</p>
-                    <address style="font-style: normal; margin-top: 0;">
+                    <address style="font-style: normal; margin-top: 0; margin-bottom: 5px;">
                         ${dispatchedFromAddressInput.value.replace(/\n/g, '<br>')}
                     </address>
                 </div>
                 <div style="width: 48%;">
                     <p style="font-weight: bold; margin-bottom: 5px; color: #555;">Ship To (Destination):</p>
-                    <address style="font-style: normal; margin-top: 0;">
+                    <address style="font-style: normal; margin-top: 0; margin-bottom: 5px;">
                         ${shipToAddressInput.value.replace(/\n/g, '<br>')}
                     </address>
                 </div>
@@ -296,15 +299,15 @@ function generateInvoice() {
         <div class="bank-declaration-section" style="display: flex; justify-content: space-between; margin-top: 30px; font-size: 0.9rem;">
             <div class="bank-details-preview" style="width: 48%; border: 1px solid #eee; padding: 10px;">
                 <p style="font-weight: bold; margin-bottom: 5px; color: #555;">Bank Details:</p>
-                <p style="margin: 3px 0;">Bank Name: ${bankNameInput.value}</p>
-                <p style="margin: 3px 0;">Account No.: ${accountNumberInput.value}</p>
-                <p style="margin: 3px 0;">IFSC Code: ${ifscCodeInput.value}</p>
+                <p style="margin: 3px 0;">Bank Name: ${bankNameInput.value || 'N/A'}</p>
+                <p style="margin: 3px 0;">Account No.: ${accountNumberInput.value || 'N/A'}</p>
+                <p style="margin: 3px 0;">IFSC Code: ${ifscCodeInput.value || 'N/A'}</p>
                 ${swiftCodeInput.value ? `<p style="margin: 3px 0;">SWIFT Code: ${swiftCodeInput.value}</p>` : ''}
             </div>
-            <div class="declaration-preview" style="width: 48%; border: 1px solid #eee; padding: 10px;">
+            <div class="declaration-preview" style="width: 48%; border: 1px solid #eee; padding: 10px; text-align: justify;">
                 <p style="font-weight: bold; margin-bottom: 5px; color: #555;">Declaration:</p>
                 <p style="margin: 3px 0;">${declarationTextInput.value}</p>
-                <p style="margin-top: 30px; text-align: right; font-weight: bold;">For ${sellerNameInput.value}</p>
+                <p style="margin-top: 30px; text-align: right; font-weight: bold;">For ${sellerNameInput.value || 'Your Company'}</p>
                 <p style="margin-top: 50px; text-align: right;">(Authorized Signatory)</p>
             </div>
         </div>
@@ -334,5 +337,6 @@ invoiceItemsBody.addEventListener('input', (event) => {
 sellerStateInput.addEventListener('input', updateTotals);
 buyerStateInput.addEventListener('input', updateTotals);
 
-// Add listeners for other top-level inputs that should trigger invoice re-generation (like dispatch/ship to, bank, declaration)
-// These don't affect totals, so they only need to be processed on generateInvoice
+// Note: For fields that don't affect calculations (like dispatch/ship to, bank, declaration),
+// they only need to be read when `generateInvoice()` is called. No need for specific event listeners here
+// unless you want real-time preview updates for these fields, which might be overkill for this app.
