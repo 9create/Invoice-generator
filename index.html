@@ -56,6 +56,18 @@
             </div>
         </div>
 
+        <div class="dispatch-delivery-details section">
+            <h3>Dispatch & Delivery Details</h3>
+            <div class="detail-group">
+                <label for="dispatchedFromAddress">Dispatched From (Address):</label>
+                <textarea id="dispatchedFromAddress" rows="2" placeholder="e.g., Your warehouse address, City, State"></textarea>
+            </div>
+            <div class="detail-group">
+                <label for="shipToAddress">Ship To (Destination Address):</label>
+                <textarea id="shipToAddress" rows="2" placeholder="e.g., Buyer's delivery address, City, State"></textarea>
+            </div>
+        </div>
+
         <div class="items-section section">
             <h3>Items</h3>
             <table class="invoice-table">
@@ -86,6 +98,25 @@
             <div>Total SGST: <span id="totalSGST">0.00</span></div>
             <div>Total IGST: <span id="totalIGST">0.00</span></div>
             <div class="grand-total">Grand Total: <span id="grandTotal">0.00</span></div>
+        </div>
+
+        <div class="bank-details-section section">
+            <h3>Bank Details</h3>
+            <label for="bankName">Bank Name:</label>
+            <input type="text" id="bankName" placeholder="e.g., State Bank of India">
+            <label for="accountNumber">Account Number:</label>
+            <input type="text" id="accountNumber" placeholder="e.g., 123456789012">
+            <label for="ifscCode">IFSC Code:</label>
+            <input type="text" id="ifscCode" placeholder="e.g., SBIN0000123">
+            <label for="swiftCode">SWIFT Code (Optional):</label>
+            <input type="text" id="swiftCode" placeholder="e.g., SBININBBXXX">
+        </div>
+
+        <div class="declaration-section section">
+            <h3>Declaration</h3>
+            <textarea id="declarationText" rows="4">
+We declare that this invoice shows the actual price of the goods described and that all particulars are true and correct.
+            </textarea>
         </div>
 
         <div class="action-buttons">
