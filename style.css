@@ -245,3 +245,26 @@ button:hover {
         display: none !important;
     }
 }
+/* Add to your existing style.css */
+
+.dispatch-delivery-details,
+.bank-details-section,
+.declaration-section {
+    margin-bottom: 25px;
+    padding: 15px;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    background-color: #fdfdfd;
+}
+
+.dispatch-delivery-details .detail-group {
+    margin-bottom: 15px; /* Spacing between dispatch and ship-to */
+}
+
+/* Adjustments for print to hide columns if their values are zero */
+@media print {
+    .invoice-table th.hide-if-zero,
+    .invoice-table td.hide-if-zero {
+        display: none !important;
+    }
+}
