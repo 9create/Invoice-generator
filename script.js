@@ -415,3 +415,44 @@ buyerStateInput.addEventListener('input', updateTotals);
 // Note: For fields that don't affect calculations (like dispatch/ship to, bank, declaration),
 // they only need to be read when `generateInvoice()` is called. No need for specific event listeners here
 // unless you want real-time preview updates for these fields, which might be overkill for this app.
+
+// Populate dropdown with electrical items
+function populateItemDropdown(selectElement) {
+  // Clear existing options except first one
+  selectElement.innerHTML = '<option value="">Select Item...</option>';
+  
+  // Add options by category
+  for (let category in electricalItems) {
+    const optgroup = document.createElement('optgroup');
+    optgroup.label = category;
+    
+    electricalItems[category].forEach(item => {
+      const option = document.createElement('option');
+      option.value = JSON.stringify(item);
+      option.textContent = item.name;
+      optgroup.appendChild(option);
+    });
+    
+    selectElement.appendChild(optgroup);
+  }
+}
+
+// Fill item details when selected from dropdown
+function fillItemDetails(selectElement) {
+  if (!selectElement.value) return;
+  
+  const item = JSON.parse(selectElement.value);
+  const row = selectElement.closest('tr');
+  
+  // Fill HSN/SAC
+  row.querySelector('.item-hsn').value = item.hsn;
+  
+  // Fill rate
+  row.querySelector('.item-price').value = item.rate;
+  
+  // Set quantity to 1
+  row.querySelector('.item-quantity').value = 1;
+  
+  // Trigger calculation
+  row.querySelector('.item-quantity').dispatchEvent(new Event('input'));
+}
