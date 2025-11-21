@@ -160,13 +160,7 @@ function addItem() {
     invoiceItemsBody.appendChild(newRow);
 // Populate the dropdown manually
 const dropdown = newRow.querySelector('.item-dropdown');
-dropdown.innerHTML = `
-  <option value="">Select Item...</option>
-  <option value='{"name":"Wire 1.5mm","hsn":"85444290","rate":12}'>Wire 1.5mm Copper</option>
-  <option value='{"name":"Wire 2.5mm","hsn":"85444290","rate":22}'>Wire 2.5mm Copper</option>
-  <option value='{"name":"MCB 16A","hsn":"85362090","rate":115}'>MCB 16A Single Pole</option>
-  <option value='{"name":"LED Bulb 9W","hsn":"85395000","rate":85}'>LED Bulb 9W</option>
-`;
+populateItemDropdown(dropdown);   
     attachRowEventListeners(newRow); // Attach listeners to new row
     updateTotals(); // Recalculate totals after adding
 }
@@ -179,7 +173,7 @@ function calculateGST(taxableValue, gstRate, sellerState, buyerState) {
     let igst = 0;
 
     // Normalize states for comparison
-    const sState = sellerState.toUpperCase().trim();
+ const sState = sellerState.toUpperCase().trim();
     const bState = buyerState.toUpperCase().trim();
 
     // Current location is Nagpur, Maharashtra, India.
