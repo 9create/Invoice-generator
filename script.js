@@ -1,3 +1,74 @@
+// Electrical Items Database
+const electricalItems = {
+  "Wires & Cables": [
+    { name: "Wire 1.5mm Copper", hsn: "85444290", unit: "meter", rate: 12 },
+    { name: "Wire 2.5mm Copper", hsn: "85444290", unit: "meter", rate: 22 },
+    { name: "Wire 4mm Copper", hsn: "85444290", unit: "meter", rate: 38 },
+    { name: "Wire 6mm Copper", hsn: "85444290", unit: "meter", rate: 58 },
+    { name: "3-Core Flex Wire", hsn: "85444290", unit: "meter", rate: 45 },
+    { name: "Coaxial Cable", hsn: "85444290", unit: "meter", rate: 18 },
+    { name: "LAN Cable Cat6", hsn: "85444290", unit: "meter", rate: 15 }
+  ],
+  "MCB & Protection": [
+    { name: "MCB 6A Single Pole", hsn: "85362090", unit: "piece", rate: 95 },
+    { name: "MCB 10A Single Pole", hsn: "85362090", unit: "piece", rate: 105 },
+    { name: "MCB 16A Single Pole", hsn: "85362090", unit: "piece", rate: 115 },
+    { name: "MCB 32A Single Pole", hsn: "85362090", unit: "piece", rate: 180 },
+    { name: "MCB 40A Double Pole", hsn: "85362090", unit: "piece", rate: 350 },
+    { name: "MCB 63A Triple Pole", hsn: "85362090", unit: "piece", rate: 650 },
+    { name: "RCCB 30mA 40A", hsn: "85362090", unit: "piece", rate: 1200 },
+    { name: "ELCB", hsn: "85362090", unit: "piece", rate: 2500 }
+  ],
+  "Switches & Sockets": [
+    { name: "Modular Switch 1-Way", hsn: "85365090", unit: "piece", rate: 85 },
+    { name: "Modular Switch 2-Way", hsn: "85365090", unit: "piece", rate: 110 },
+    { name: "Bell Push Switch", hsn: "85365090", unit: "piece", rate: 65 },
+    { name: "3-Pin Socket 5A", hsn: "85365090", unit: "piece", rate: 95 },
+    { name: "3-Pin Socket 15A", hsn: "85365090", unit: "piece", rate: 125 },
+    { name: "2-Pin Socket", hsn: "85365090", unit: "piece", rate: 75 },
+    { name: "Multi Plug Socket", hsn: "85365090", unit: "piece", rate: 450 }
+  ],
+  "Lights & Fixtures": [
+    { name: "LED Bulb 9W", hsn: "85395000", unit: "piece", rate: 85 },
+    { name: "LED Bulb 12W", hsn: "85395000", unit: "piece", rate: 110 },
+    { name: "LED Bulb 18W", hsn: "85395000", unit: "piece", rate: 145 },
+    { name: "Tubelight 18W", hsn: "85395000", unit: "piece", rate: 180 },
+    { name: "Tubelight 36W", hsn: "85395000", unit: "piece", rate: 280 },
+    { name: "Batten Holder", hsn: "85395000", unit: "piece", rate: 35 },
+    { name: "Ceiling Rose", hsn: "85395000", unit: "piece", rate: 25 },
+    { name: "Panel Light Square", hsn: "85395000", unit: "piece", rate: 350 },
+    { name: "Panel Light Round", hsn: "85395000", unit: "piece", rate: 320 }
+  ],
+  "Fans & Regulators": [
+    { name: "Ceiling Fan", hsn: "84145100", unit: "piece", rate: 1200 },
+    { name: "Exhaust Fan", hsn: "84145100", unit: "piece", rate: 850 },
+    { name: "Fan Regulator Step Type", hsn: "85365090", unit: "piece", rate: 120 },
+    { name: "Fan Regulator Dimmer", hsn: "85365090", unit: "piece", rate: 180 }
+  ],
+  "Distribution & Panels": [
+    { name: "Distribution Board 4-Way", hsn: "85381010", unit: "piece", rate: 650 },
+    { name: "Distribution Board 8-Way", hsn: "85381010", unit: "piece", rate: 1200 },
+    { name: "Distribution Board 12-Way", hsn: "85381010", unit: "piece", rate: 1800 },
+    { name: "Main Switch 63A", hsn: "85365090", unit: "piece", rate: 450 },
+    { name: "Changeover Switch", hsn: "85365090", unit: "piece", rate: 850 }
+  ],
+  "Accessories": [
+    { name: "PVC Conduit 20mm", hsn: "39172900", unit: "meter", rate: 28 },
+    { name: "PVC Conduit 25mm", hsn: "39172900", unit: "meter", rate: 38 },
+    { name: "Junction Box Small", hsn: "85389090", unit: "piece", rate: 45 },
+    { name: "Junction Box Large", hsn: "85389090", unit: "piece", rate: 75 },
+    { name: "Cable Ties (Pack)", hsn: "39269099", unit: "pack", rate: 80 },
+    { name: "Electrical Tape", hsn: "39191099", unit: "piece", rate: 25 },
+    { name: "Wire Connectors (Pack)", hsn: "85389090", unit: "pack", rate: 120 }
+  ],
+  "Labour Charges": [
+    { name: "Wiring per Point", hsn: "998599", unit: "point", rate: 250 },
+    { name: "Fan Installation", hsn: "998599", unit: "piece", rate: 200 },
+    { name: "MCB Installation", hsn: "998599", unit: "piece", rate: 100 },
+    { name: "DB Panel Installation", hsn: "998599", unit: "piece", rate: 800 },
+    { name: "Testing & Commissioning", hsn: "998599", unit: "job", rate: 1500 }
+  ]
+};
 // Get references to HTML elements
 const invoiceNumberInput = document.getElementById('invoiceNumber');
 const dispatchNumberInput = document.getElementById('dispatchNumber');
