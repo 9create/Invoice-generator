@@ -426,10 +426,18 @@ buyerStateInput.addEventListener('input', updateTotals);
 
 // Populate dropdown with electrical items
 function populateItemDropdown(selectElement) {
-  // Clear existing options except first one
+  if (!selectElement) return;
+  
+  // Clear and add default option
   selectElement.innerHTML = '<option value="">Select Item...</option>';
   
-  // Add options by category
+  // Check if electricalItems exists
+  if (typeof electricalItems === 'undefined') {
+    console.error('electricalItems not loaded!');
+    return;
+  }
+  
+  // Add all items
   for (let category in electricalItems) {
     const optgroup = document.createElement('optgroup');
     optgroup.label = category;
@@ -443,24 +451,4 @@ function populateItemDropdown(selectElement) {
     
     selectElement.appendChild(optgroup);
   }
-}
-
-// Fill item details when selected from dropdown
-function fillItemDetails(selectElement) {
-  if (!selectElement.value) return;
-  
-  const item = JSON.parse(selectElement.value);
-  const row = selectElement.closest('tr');
-  
-  // Fill HSN/SAC
-  row.querySelector('.item-hsn').value = item.hsn;
-  
-  // Fill rate
-  row.querySelector('.item-price').value = item.rate;
-  
-  // Set quantity to 1
-  row.querySelector('.item-quantity').value = 1;
-  
-  // Trigger calculation
-  row.querySelector('.item-quantity').dispatchEvent(new Event('input'));
 }
