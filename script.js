@@ -125,6 +125,11 @@ document.addEventListener('DOMContentLoaded', () => {
     invoiceDateInput.value = `${yyyy}-${mm}-${dd}`;
     addItem(); // Add one initial item row
     updateTotals(); // Calculate initial totals
+  // Populate initial dropdown
+setTimeout(() => {
+  const firstDropdown = document.querySelector('.item-dropdown');
+  if (firstDropdown) populateItemDropdown(firstDropdown);
+}, 100);
 
     // Set default declaration text
     declarationTextInput.value = `We declare that this invoice shows the actual price of the goods described and that all particulars are true and correct.`;
