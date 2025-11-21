@@ -158,9 +158,15 @@ function addItem() {
         <td><button class="remove-item-btn">Remove</button></td>
     `;
     invoiceItemsBody.appendChild(newRow);
-  // Populate the dropdown
+// Populate the dropdown manually
 const dropdown = newRow.querySelector('.item-dropdown');
-populateItemDropdown(dropdown);
+dropdown.innerHTML = `
+  <option value="">Select Item...</option>
+  <option value='{"name":"Wire 1.5mm","hsn":"85444290","rate":12}'>Wire 1.5mm Copper</option>
+  <option value='{"name":"Wire 2.5mm","hsn":"85444290","rate":22}'>Wire 2.5mm Copper</option>
+  <option value='{"name":"MCB 16A","hsn":"85362090","rate":115}'>MCB 16A Single Pole</option>
+  <option value='{"name":"LED Bulb 9W","hsn":"85395000","rate":85}'>LED Bulb 9W</option>
+`;
     attachRowEventListeners(newRow); // Attach listeners to new row
     updateTotals(); // Recalculate totals after adding
 }
