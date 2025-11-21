@@ -153,6 +153,9 @@ function addItem() {
         <td><button class="remove-item-btn">Remove</button></td>
     `;
     invoiceItemsBody.appendChild(newRow);
+  // Populate the dropdown
+const dropdown = newRow.querySelector('.item-dropdown');
+populateItemDropdown(dropdown);
     attachRowEventListeners(newRow); // Attach listeners to new row
     updateTotals(); // Recalculate totals after adding
 }
