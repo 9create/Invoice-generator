@@ -136,7 +136,11 @@ function addItem() {
     newRow.classList.add('invoice-item'); // Add a class for easy selection later
 
     newRow.innerHTML = `
-        <td><input type="text" class="item-description" placeholder="Product/Service Name"></td>
+        <td>
+  <select class="item-dropdown" onchange="fillItemDetails(this)">
+    <option value="">Select Item...</option>
+  </select>
+</td>
         <td><input type="text" class="item-hsn" placeholder="HSN/SAC"></td>
         <td><input type="number" class="item-quantity" value="1" min="0.01" step="0.01"></td>
         <td><input type="number" class="item-price" value="0.00" min="0" step="0.01"></td>
