@@ -273,3 +273,15 @@ button:hover {
         display: none !important;
     }
 }
+
+/* HSN column wider and clear */
+.item-hsn {
+  min-width: 120px;
+  width: 120px;
+  font-size: 14px;
+}
+
+/* Rate editable highlight */
+.item-price {
+  background-color: #fffef0;
+}
